@@ -1,20 +1,18 @@
 import logging
-import uuid
 from typing import List
 
 from django.db import transaction
 
 from poca.application.adapter.spi.persistence.repository.user_repository import FindUserPort
 from poca.application.domain.model import photo_card_trade_result
-from poca.application.domain.model.photo_card import PhotoCardSale, PhotoCardState
-from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
+from poca.application.domain.model.photo_card import PhotoCardSale
+from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand, \
+    RegisterPhotoCardOnSaleCommand
 from poca.application.port.api.photo_card_trade_use_case import PhotoCardTradeUseCase
 from poca.application.port.spi.repository.product.find_photo_card_port import FindPhotoCardSalePort
-from poca.application.port.spi.repository.product.save_photo_card_port import SavePhotoCardPort
+from poca.application.port.spi.repository.product.save_photo_card_port import SavePhotoCardSalePort
 from poca.application.port.spi.repository.user.save_user_port import SaveUserPort
 from poca.application.util.transactional import MaxRetriesExceededException
-
-DEFAULT_QUERY_METHOD = 'MIN_PRICE_RENEWAL_LATE_FIRST'
 
 
 class PhotoCardTradeService(
@@ -23,21 +21,30 @@ class PhotoCardTradeService(
     _find_user_port: FindUserPort
     _save_user_port: SaveUserPort
     _find_photo_card_port: FindPhotoCardSalePort
-    _save_photo_card_port: SavePhotoCardPort
+    _save_photo_card_port: SavePhotoCardSalePort
 
     logger = logging.getLogger(__name__)
 
     def __init__(self, find_user_port: FindUserPort, save_user_port: SaveUserPort,
-                 find_photo_card_port: FindPhotoCardSalePort, save_photo_card_port: SavePhotoCardPort):
+                 find_photo_card_port: FindPhotoCardSalePort, save_photo_card_port: SavePhotoCardSalePort):
         self._find_user_port = find_user_port
         self._save_user_port = save_user_port
         self._find_photo_card_port = find_photo_card_port
         self._save_photo_card_port = save_photo_card_port
 
+    def register_photo_card_on_sale(self, command: RegisterPhotoCardOnSaleCommand):
+
+        # 판매 등록 성공시 도메인 반환, 실패시 None
+        if result := not self._save_photo_card_port.save_photo_card_sale(command):
+            if not result:
+                return photo_card_trade_result.PhotoCardSaleRegisterFailResult(command.card_id)
+            else:
+                return photo_card_trade_result.PhotoCardSaleRegisteredResult(command.card_id)
+
     def on_sale_photo_card(self, method: str):
         match method:
             case 'MIN_PRICE_RENEWAL_LATE_FIRST':
-                self._on_sale_photo_card_by_min_price_renewal_rate_first()
+                return self._on_sale_photo_card_by_min_price_renewal_rate_first()
 
     def _on_sale_photo_card_by_min_price_renewal_rate_first(self) -> List[PhotoCardSale]:
         # 판매중인 포토카드를 조회 저렴한 가격순으로 정렬
@@ -71,7 +78,7 @@ class PhotoCardTradeService(
 
         try:
             with transaction.atomic():
-                self._save_photo_card_port.update_photo_card(UpdatePhotoCardCommand(
+                self._save_photo_card_port.update_photo_card_sale(UpdatePhotoCardCommand(
                     record_id=record_id,
                     buyer_id=buyer_id,
                     version=record.version

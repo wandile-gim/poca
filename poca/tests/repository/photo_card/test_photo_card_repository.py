@@ -6,7 +6,7 @@ from django.utils.timezone import now
 
 from poca.application.adapter.spi.persistence.entity.photo_card import PhotoCardSale, PhotoCard
 from poca.application.adapter.spi.persistence.entity.user import User
-from poca.application.adapter.spi.persistence.repository.photo_card_repository import PhotoCardRepository
+from poca.application.adapter.spi.persistence.repository.photo_card_trade_repository import PhotoCardSaleRepository
 from poca.application.domain.model.photo_card import PhotoCardState
 from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
 
@@ -18,7 +18,7 @@ class TestPhotoCardRepository(TestCase):
     buyer: User
 
     def setUp(self):
-        self.repository = PhotoCardRepository()
+        self.repository = PhotoCardSaleRepository()
         self._init_user()
         self._init_photo_card_sale_datas()
 
@@ -184,7 +184,7 @@ class TestPhotoCardRepositorySavePort(TestCase):
     buyer2: User
 
     def setUp(self):
-        self.repository = PhotoCardRepository()
+        self.repository = PhotoCardSaleRepository()
         self._init_user()
         from django.db import connection
 
@@ -222,10 +222,10 @@ class TestPhotoCardRepositorySavePort(TestCase):
         # self.repository.update_photo_card(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer1.id))
         # self.repository.update_photo_card(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer2.id))
 
-        thread1 = threading.Thread(target=self.repository.update_photo_card,
+        thread1 = threading.Thread(target=self.repository.update_photo_card_sale,
                                    args=(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer1.id,
                                                                 version=photo_card_sale.version),))
-        thread2 = threading.Thread(target=self.repository.update_photo_card,
+        thread2 = threading.Thread(target=self.repository.update_photo_card_sale,
                                    args=(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer2.id,
                                                                 version=photo_card_sale.version),))
         #

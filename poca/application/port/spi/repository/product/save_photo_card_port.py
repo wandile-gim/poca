@@ -6,7 +6,7 @@ from poca.application.port.api.command.photo_card_trade_command import UpdatePho
 
 
 class SavePhotoCardSalePort(Protocol):
-    def save_photo_card_sale(self, photo_card: RegisterPhotoCardOnSaleCommand) -> PhotoCardSale:
+    def save_photo_card_sale(self, photo_card: PhotoCardSale) -> PhotoCardSale:
         """
         신규 포토카드 판매 정보 저장
         :param photo_card: RegisterPhotoCardOnSaleCommand

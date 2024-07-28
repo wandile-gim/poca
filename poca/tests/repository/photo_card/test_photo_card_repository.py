@@ -237,5 +237,4 @@ class TestPhotoCardRepositorySavePort(TestCase):
 
         # then
         updated_photo_card_sale = PhotoCardSale.objects.get(id=photo_card_sale.id)
-
         print(updated_photo_card_sale.buyer_id, updated_photo_card_sale.version)

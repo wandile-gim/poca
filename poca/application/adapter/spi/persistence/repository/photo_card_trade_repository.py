@@ -1,15 +1,14 @@
 import logging
 from typing import List, Optional
 
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.db.models import OuterRef, Subquery
 from django.utils.timezone import now
 
 from poca.application.adapter.spi.persistence.entity.photo_card import PhotoCardSale
 from poca.application.domain.model.photo_card import PhotoCardSale as PhotoCardSaleDomain
 from poca.application.domain.model.photo_card import PhotoCardState
-from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand, \
-    RegisterPhotoCardOnSaleCommand
+from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
 from poca.application.port.spi.repository.product.find_photo_card_port import FindPhotoCardSalePort
 from poca.application.port.spi.repository.product.save_photo_card_port import SavePhotoCardSalePort
 from poca.application.util.transactional import retry_optimistic_locking, OptimisticLockException
@@ -61,7 +60,7 @@ class PhotoCardSaleRepository(
         except PhotoCardSale.DoesNotExist:
             return
 
-    def save_photo_card_sale(self, photo_card: RegisterPhotoCardOnSaleCommand) -> PhotoCardSaleDomain:
+    def save_photo_card_sale(self, photo_card: PhotoCardSaleDomain) -> PhotoCardSaleDomain:
         """
         신규 포토카드 판매 정보 저장
         :param photo_card: RegisterPhotoCardOnSaleCommand
@@ -72,9 +71,11 @@ class PhotoCardSaleRepository(
                 price=photo_card.price,
                 fee=photo_card.fee,
                 seller_id=photo_card.seller_id,
-                photo_card_id=photo_card.card_id,
-            ).save()
-            return sale
+                photo_card_id=photo_card.photo_card_id,
+                renewal_date=photo_card.renewal_date
+            )
+            sale.save()
+            return sale.to_domain()
 
         except IntegrityError:
             self.logger.error(f'PhotoCardSale save error {photo_card}')

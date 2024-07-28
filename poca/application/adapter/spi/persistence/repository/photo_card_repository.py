@@ -7,7 +7,7 @@ class PhotoCardRepository:
     포토카드 관련 데이터베이스 처리를 위한 Repository
     """
 
-    def register_new_photo_card(self, photo_card: CreatePhotoCardCommand) -> None:
+    def register_new_photo_card(self, photo_card: CreatePhotoCardCommand) -> int:
         """
         새로운 포토카드를 등록한다.
         :param photo_card: PhotoCardDomain 포토카드 도메인객체
@@ -20,6 +20,7 @@ class PhotoCardRepository:
         )
         # async로 이미지 url 처리
         self.upload_image_to_s3(photo_card_id.id, photo_card.image_data)
+        return photo_card_id.id
 
     def upload_image_to_s3(self, photo_card_id: int, image_data: bytes) -> str:
         """

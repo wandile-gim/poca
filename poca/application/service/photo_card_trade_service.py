@@ -1,11 +1,13 @@
+import decimal
 import logging
 from typing import List
 
 from django.db import transaction
+from django.utils.timezone import now
 
 from poca.application.adapter.spi.persistence.repository.user_repository import FindUserPort
 from poca.application.domain.model import photo_card_trade_result
-from poca.application.domain.model.photo_card import PhotoCardSale
+from poca.application.domain.model.photo_card import PhotoCardSale, PhotoCardState, FeePolicy
 from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand, \
     RegisterPhotoCardOnSaleCommand
 from poca.application.port.api.photo_card_trade_use_case import PhotoCardTradeUseCase
@@ -35,7 +37,17 @@ class PhotoCardTradeService(
     def register_photo_card_on_sale(self, command: RegisterPhotoCardOnSaleCommand):
 
         # 판매 등록 성공시 도메인 반환, 실패시 None
-        if result := not self._save_photo_card_port.save_photo_card_sale(command):
+        fee = command.fee if command.fee > 0 else FeePolicy(decimal.Decimal(5))
+        trade_record = PhotoCardSale(
+            state=PhotoCardState.ON_SALE.value,
+            price=decimal.Decimal(command.price),
+            fee=decimal.Decimal(fee),
+            seller_id=command.seller_id,
+            photo_card_id=command.card_id,
+            renewal_date=now()
+        )
+
+        if result := self._save_photo_card_port.save_photo_card_sale(trade_record):
             if not result:
                 return photo_card_trade_result.PhotoCardSaleRegisterFailResult(command.card_id)
             else:

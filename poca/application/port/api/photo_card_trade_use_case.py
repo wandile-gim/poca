@@ -21,6 +21,11 @@ class PhotoCardTradeUseCase(Protocol):
         raise NotImplementedError()
 
     def get_min_price_photo_card_on_sale(self, card_id):
+        """
+        최소 가격의 판매중인 포토카드 조회
+        :param card_id: int
+        :return: 조회에 성공했을 경우 PhotoCardSale 도메인 반환
+        """
         raise NotImplementedError()
 
     def buy_photo_card_on_record(self, record_id: int,

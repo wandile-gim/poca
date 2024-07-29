@@ -56,9 +56,9 @@ class PhotoCardSaleRepository(
             return PhotoCardSale.objects.filter(
                 photo_card_id=card_id,
                 state=PhotoCardState.ON_SALE.value
-            ).order_by('price').first()
+            ).order_by('price').first().to_domain()
         except PhotoCardSale.DoesNotExist:
-            return
+            return None
 
     def save_photo_card_sale(self, photo_card: PhotoCardSaleDomain) -> PhotoCardSaleDomain:
         """

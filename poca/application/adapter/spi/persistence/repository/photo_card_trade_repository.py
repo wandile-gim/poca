@@ -6,8 +6,8 @@ from django.db.models import OuterRef, Subquery
 from django.utils.timezone import now
 
 from poca.application.adapter.spi.persistence.entity.photo_card import PhotoCardSale, PhotoCard
-from poca.application.domain.model.photo_card import PhotoCardSale as PhotoCardSaleDomain
 from poca.application.domain.model.photo_card import PhotoCard as PhotoCardDomain
+from poca.application.domain.model.photo_card import PhotoCardSale as PhotoCardSaleDomain
 from poca.application.domain.model.photo_card import PhotoCardState
 from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
 from poca.application.port.spi.repository.product.find_photo_card_port import FindPhotoCardSalePort
@@ -53,13 +53,13 @@ class PhotoCardSaleRepository(
         최소 가격의 판매중인 포토카드 조회
         :param card_id: int
         """
-        try:
-            return PhotoCardSale.objects.filter(
-                photo_card_id=card_id,
-                state=PhotoCardState.ON_SALE.value
-            ).order_by('price').first().to_domain()
-        except PhotoCardSale.DoesNotExist:
-            return None
+        query = PhotoCardSale.objects.filter(
+            photo_card_id=card_id,
+            state=PhotoCardState.ON_SALE.value
+        ).order_by('price')
+        if query.exists():
+            return query.first().to_domain()
+        return None
 
     def save_photo_card_sale(self, photo_card: PhotoCardSaleDomain) -> PhotoCardSaleDomain:
         """

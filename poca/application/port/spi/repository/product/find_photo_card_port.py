@@ -1,4 +1,4 @@
-from typing import Protocol, List
+from typing import Protocol, List, Optional
 
 from poca.application.domain.model.photo_card import PhotoCard, PhotoCardSale
 
@@ -11,9 +11,17 @@ class FindPhotoCardSalePort(Protocol):
         """
         raise NotImplementedError()
 
-    def find_photo_card_by_card_id(self, card_id: int, number_of_cards: int) -> List[PhotoCardSale]:
+    def find_photo_card_by_card_id(self, card_id: int) -> Optional[PhotoCard]:
         """
-        포토카드 id를 가진 판매 기록 조회
+        포토카드 id를 가진 포토카드 조회
+        :param card_id: int
+        :return: Optional[PhotoCardDomain]
+        """
+        raise NotImplementedError()
+
+    def find_recently_sold_photo_card(self, card_id: int, number_of_cards: int) -> List[PhotoCardSale]:
+        """
+        최근 판매된 포토카드 조회
         :param card_id: int
         :param number_of_cards: int default: 5
         :return: [domain] List:PhotoCardSale

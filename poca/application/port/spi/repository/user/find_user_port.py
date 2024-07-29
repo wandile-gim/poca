@@ -9,4 +9,9 @@ class FindUserPort(Protocol):
         raise NotImplementedError()
 
     def get_user_by_user_id(self, user_id: int) -> UserDomain:
+        """
+        유저 id로 유저 조회
+        :param user_id: int
+        :return: UserDomain
+        """
         raise NotImplementedError()

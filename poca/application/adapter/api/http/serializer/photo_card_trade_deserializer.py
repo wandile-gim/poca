@@ -18,6 +18,7 @@ class RegisterPhotoCardTradeDeSerializer(serializers.Serializer[RegisterPhotoCar
 
 class BuyPhotoCardTradeDeSerializer(serializers.Serializer):
     buyer_id = serializers.IntegerField(required=False)
+    record_id = serializers.IntegerField()
 
     def create(self):
         validated_data = self.validated_data

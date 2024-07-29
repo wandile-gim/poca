@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from typing import List
 
-from poca.application.domain.model.photo_card import PhotoCardSale
+from poca.application.domain.model.photo_card import PhotoCardSale, PhotoCard
 
 
 class PhotoCardTradeResult:
@@ -10,6 +11,17 @@ class PhotoCardTradeResult:
 
     def to_message(self) -> str:
         raise NotImplementedError()
+
+
+@dataclass
+class PhotoCardTradeRecentlySoldResult(PhotoCardTradeResult):
+    """
+    최근 판매된 포토카드 조회 결과
+    :params photo_card_sales: List[PhotoCardSale]
+    :params photo_card: PhotoCard
+    """
+    photo_card_sales: List[PhotoCardSale]
+    photo_card: PhotoCard
 
 
 @dataclass
@@ -69,4 +81,3 @@ class PhotoCardTradeNotProcessedResult(PhotoCardTradeResult):
 
     def to_message(self) -> str:
         return f"record_id:{self.record_id} 거래가 처리되지 않았습니다. 재시도 해주세요."
-

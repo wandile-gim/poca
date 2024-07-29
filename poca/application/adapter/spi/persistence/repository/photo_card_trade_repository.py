@@ -5,8 +5,9 @@ from django.db import IntegrityError
 from django.db.models import OuterRef, Subquery
 from django.utils.timezone import now
 
-from poca.application.adapter.spi.persistence.entity.photo_card import PhotoCardSale
+from poca.application.adapter.spi.persistence.entity.photo_card import PhotoCardSale, PhotoCard
 from poca.application.domain.model.photo_card import PhotoCardSale as PhotoCardSaleDomain
+from poca.application.domain.model.photo_card import PhotoCard as PhotoCardDomain
 from poca.application.domain.model.photo_card import PhotoCardState
 from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
 from poca.application.port.spi.repository.product.find_photo_card_port import FindPhotoCardSalePort
@@ -33,9 +34,9 @@ class PhotoCardSaleRepository(
         return [photo_card.to_domain().set_total_price()
                 for photo_card in result]
 
-    def find_photo_card_by_card_id(self, card_id: int, number_of_cards: int = 5) -> List[PhotoCardSaleDomain]:
+    def find_recently_sold_photo_card(self, card_id: int, number_of_cards: int = 5) -> List[PhotoCardSaleDomain]:
         return [
-            record.to_domain() for record in PhotoCardSale.objects.filter(
+            record.to_domain().set_total_price() for record in PhotoCardSale.objects.filter(
                 photo_card_id=card_id,
                 sold_date__isnull=False).order_by('-sold_date')[:number_of_cards]
         ]
@@ -109,3 +110,14 @@ class PhotoCardSaleRepository(
             # return False
         except Exception as e:
             raise e
+
+    def find_photo_card_by_card_id(self, card_id: int) -> Optional[PhotoCardDomain]:
+        """
+         포토카드 id를 가진 포토카드 조회
+         :param card_id: int
+         :return: Optional[PhotoCardDomain]
+         """
+        try:
+            return PhotoCard.objects.get(id=card_id).to_domain()
+        except PhotoCard.DoesNotExist:
+            return None

@@ -19,6 +19,7 @@ class PhotoCardTradeAPIView(APIView):
     http_method_names = ['get', 'post']  # 리스트 조회, 판매 등록
     permission_classes = [IsAuthenticated]
 
+    # 의존성 주입
     @inject
     def __init__(self,
                  photo_card_trade_use_case: PhotoCardTradeUseCase = Provide["photo_card_trade_use_case"],
@@ -35,6 +36,7 @@ class PhotoCardTradeAPIView(APIView):
         result = self.use_case.register_photo_card_on_sale(command)
         return self._build_response(result)
 
+    # 서비스 로직의 반환 타입에 따라 response 객체 생성
     def _build_response(self, result: photo_card_trade_result.PhotoCardTradeResult) -> Response:
         response = None
         match result:
@@ -48,6 +50,7 @@ class PhotoCardTradeAPIView(APIView):
 
         return response
 
+    # request 데이터를 command 객체로 변환
     def _read_command(self, request) -> RegisterPhotoCardOnSaleCommand:
         serializer = RegisterPhotoCardTradeDeSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)

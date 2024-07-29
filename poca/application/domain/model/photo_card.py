@@ -50,7 +50,7 @@ class PhotoCardSale:
     seller: UserDomain = None
     buyer: UserDomain = None
     create_date: str = None
-    _total_price: decimal.Decimal = None
+    total_price: decimal.Decimal = None
     photo_card_id: int = None
     buyer_id: int = None
     seller_id: int = None
@@ -62,7 +62,7 @@ class PhotoCardSale:
         return self.price + self.fee
 
     def set_total_price(self):
-        self._total_price = self.get_total_price()
+        self.total_price = self.get_total_price()
         return self
 
     def apply_fee_policy(self, fee_policy: FeePolicy):

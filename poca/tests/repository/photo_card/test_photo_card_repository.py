@@ -38,7 +38,7 @@ class TestPhotoCardRepository(TestCase):
             release_date=standard_date
         ).id
 
-        result = PhotoCardSale.objects.bulk_create(
+        PhotoCardSale.objects.bulk_create(
             [
                 PhotoCardSale(
                     seller=self.seller,
@@ -160,7 +160,7 @@ class TestPhotoCardRepository(TestCase):
         ).save()
 
         def bulk():
-            result = PhotoCardSale.objects.bulk_create(given)
+            PhotoCardSale.objects.bulk_create(given)
 
         bulk()
 

@@ -1,0 +1,194 @@
+openapi: 3.0.0
+info:
+  title: POCA API
+  description: API documentation for POCA assignment
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+
+
+paths:
+  /api/cards:
+    post:
+      summary: 새로운 카드 등록
+      security:
+        - X-CSRFToken: [ ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                image_file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Created response
+  /api/sales:
+    get:
+      summary: 판매중인 최소 가격, 먼저 등록된 카드 매물 조회
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: 카드 물품 등록
+      security:
+          - X-CSRFToken: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                card_id:
+                  type: integer
+                price:
+                  type: integer
+                fee:
+                  type: integer
+      responses:
+        '201':
+          description: Created response
+
+  /api/purchase:
+    post:
+      summary: 카드 물품 구매
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                record_id:
+                  type: integer
+      responses:
+        '200':
+          description: Successful response
+        '406':
+          description: Not Acceptable response
+        '417':
+          description: Expectation Failed response
+
+  /api/sales/min_price/{id}:
+    get:
+      summary: 가장 저렴한 카드 판매 조회
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not Found response
+
+  /api/sales/{id}:
+    get:
+      summary: 최근에 거래된 포토카드 목록
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Not Found response
+
+  /api/auth:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad Request response
+
+  /api/auth/register:
+    post:
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad Request response
+
+components:
+  securitySchemes:
+    X-CSRFToken:
+      type: apiKey
+      in: header
+      name: X-CSRFToken
+  schemas:
+    SaleItem:
+      type: object
+      properties:
+        card_id:
+          type: integer
+        price:
+          type: integer
+        fee:
+          type: integer
+    PurchaseItem:
+      type: object
+      properties:
+        record_id:
+          type: integer
+    AuthItem:
+      type: object
+      properties:
+        user_email:
+          type: string
+        password:
+          type: string
+    RegisterItem:
+      type: object
+      properties:
+        user_email:
+          type: string
+        password:
+          type: string
+    PhotoCardItem:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image_file:
+          type: string
+          format: binary

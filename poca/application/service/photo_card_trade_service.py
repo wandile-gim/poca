@@ -47,7 +47,7 @@ class PhotoCardTradeService(
             renewal_date=now()
         )
 
-        if result := self._save_photo_card_port.save_photo_card_sale(trade_record):
+        if self._save_photo_card_port.save_photo_card_sale(trade_record):
             return photo_card_trade_result.PhotoCardSaleRegisteredResult(command.card_id)
         else:
             return photo_card_trade_result.PhotoCardSaleRegisterFailResult(command.card_id)

@@ -1,6 +1,5 @@
 import dataclasses
 import decimal
-import uuid
 
 
 @dataclasses.dataclass

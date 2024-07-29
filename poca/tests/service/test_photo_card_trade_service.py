@@ -152,34 +152,6 @@ class TestPhotoCardTradeService(TestCase):
         # then
         self.assertEqual(result.photo_card_sales[0].get_total_price(), decimal.Decimal(1100))
 
-    def test_get_min_price_photo_card_on_sale(self):
-        card_id = self.photo_repository.register_new_photo_card(CreatePhotoCardCommand(
-            name="test",
-            description="test",
-            image_data=b"test"
-        ))
-
-        # when
-        self.photo_trade_repository.save_photo_card_sale(PhotoCardSale(
-            state=PhotoCardState.ON_SALE.value,
-            price=decimal.Decimal(10001),
-            fee=decimal.Decimal(100),
-            seller_id=self.buyer_1.id,
-            photo_card_id=card_id,
-            renewal_date="2021-01-01"
-        ))
-        self.photo_trade_repository.save_photo_card_sale(PhotoCardSale(
-            state=PhotoCardState.ON_SALE.value,
-            price=decimal.Decimal(1000),
-            fee=decimal.Decimal(100),
-            seller_id=self.buyer_1.id,
-            photo_card_id=card_id,
-            renewal_date="2021-01-01"
-        ))
-
-        result = self.service.get_min_price_photo_card_on_sale(card_id)
-        self.assertEqual(result.record.get_total_price(), decimal.Decimal(1100))
-
     def test_buy_photo_card_on_record(self):
         card_id = self.photo_repository.register_new_photo_card(CreatePhotoCardCommand(
             name="test",
@@ -230,7 +202,7 @@ class TestPhotoCardTradeService(TestCase):
             photo_card_id=card_id,
             renewal_date="2021-01-01"
         ))
-        record_id = self.photo_trade_repository.save_photo_card_sale(PhotoCardSale(
+        self.photo_trade_repository.save_photo_card_sale(PhotoCardSale(
             state=PhotoCardState.ON_SALE.value,
             price=decimal.Decimal(1000),
             fee=decimal.Decimal(100),

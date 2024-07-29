@@ -23,4 +23,3 @@ class TestUserDomain(TestCase):
 
         # then
         self.assertEqual(user.balance, decimal.Decimal(9000))
-

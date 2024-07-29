@@ -1,8 +1,7 @@
 from typing import Protocol
 
 from poca.application.domain.model.photo_card import PhotoCardSale
-from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand, \
-    RegisterPhotoCardOnSaleCommand
+from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
 
 
 class SavePhotoCardSalePort(Protocol):

@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
+from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 
 from poca.application.adapter.spi.persistence.entity.user import User
@@ -23,7 +24,9 @@ def login_view(request):
         user = authenticate(request, user_email=user_email, password=password)
         if user is not None:
             login(request, user)
-            return JsonResponse({'status': 'success', 'message': 'Logged in successfully'})
+            response = JsonResponse({'status': 'success', 'message': 'Logged in successfully'})
+            response.set_cookie('X-CSRFToken', get_token(request), httponly=True)
+            return response
         else:
             return JsonResponse({'status': 'error', 'message': 'Invalid credentials'}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)

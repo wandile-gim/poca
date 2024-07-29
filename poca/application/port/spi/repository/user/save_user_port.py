@@ -1,5 +1,4 @@
 import decimal
-import uuid
 from typing import Protocol
 
 

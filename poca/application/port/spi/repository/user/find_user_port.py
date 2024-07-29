@@ -1,4 +1,3 @@
-import uuid
 from typing import Protocol
 
 from poca.application.domain.model.user import UserDomain

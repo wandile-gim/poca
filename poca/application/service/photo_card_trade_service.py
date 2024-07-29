@@ -48,10 +48,9 @@ class PhotoCardTradeService(
         )
 
         if result := self._save_photo_card_port.save_photo_card_sale(trade_record):
-            if not result:
-                return photo_card_trade_result.PhotoCardSaleRegisterFailResult(command.card_id)
-            else:
-                return photo_card_trade_result.PhotoCardSaleRegisteredResult(command.card_id)
+            return photo_card_trade_result.PhotoCardSaleRegisteredResult(command.card_id)
+        else:
+            return photo_card_trade_result.PhotoCardSaleRegisterFailResult(command.card_id)
 
     def on_sale_photo_card(self, method: OnSaleQueryStrategy):
         match method:
@@ -66,11 +65,10 @@ class PhotoCardTradeService(
 
     def get_recently_sold_photo_card(self, card_id, number_of_cards=5) -> photo_card_trade_result.PhotoCardTradeResult:
         if photo_card := self._find_photo_card_port.find_photo_card_by_card_id(card_id):
-            if not photo_card:
-                return photo_card_trade_result.NoPhotoCardOnSaleResult(card_id)
-            else:
-                trade_list = self._find_photo_card_port.find_recently_sold_photo_card(card_id, number_of_cards)
-                return photo_card_trade_result. PhotoCardTradeRecentlySoldResult(trade_list, photo_card)
+            trade_list = self._find_photo_card_port.find_recently_sold_photo_card(card_id, number_of_cards)
+            return photo_card_trade_result.PhotoCardTradeRecentlySoldResult(trade_list, photo_card)
+        else:
+            return photo_card_trade_result.NoPhotoCardOnSaleResult(card_id)
 
     def get_min_price_photo_card_on_sale(self, card_id) -> photo_card_trade_result.PhotoCardTradeResult:
         if result := self._find_photo_card_port.find_min_price_photo_card_on_sale(card_id):

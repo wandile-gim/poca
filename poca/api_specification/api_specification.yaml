@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: POCA API
-  description: API documentation for POCA assignment
+  description: API documentation for POCA
   version: 1.0.0
 servers:
   - url: http://localhost:8000

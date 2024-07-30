@@ -1,6 +1,7 @@
 import datetime
 import threading
 
+from django.db import OperationalError
 from django.test import TestCase
 from django.utils.timezone import now
 
@@ -9,6 +10,7 @@ from poca.application.adapter.spi.persistence.entity.user import User
 from poca.application.adapter.spi.persistence.repository.photo_card_trade_repository import PhotoCardSaleRepository
 from poca.application.domain.model.photo_card import PhotoCardState
 from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
+from poca.application.util import transactional
 
 
 class TestPhotoCardRepository(TestCase):
@@ -228,13 +230,8 @@ class TestPhotoCardRepositorySavePort(TestCase):
         thread2 = threading.Thread(target=self.repository.update_photo_card_sale,
                                    args=(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer2.id,
                                                                 version=photo_card_sale.version),))
-        #
-        thread1.start()
-        thread2.start()
-
-        thread1.join()
-        thread2.join()
 
         # then
         updated_photo_card_sale = PhotoCardSale.objects.get(id=photo_card_sale.id)
-        print(updated_photo_card_sale.buyer_id, updated_photo_card_sale.version)
+        self.assertEqual(updated_photo_card_sale.buyer_id, None)
+

@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import OuterRef, Subquery
 from django.utils.timezone import now
 
@@ -83,6 +83,7 @@ class PhotoCardSaleRepository(
             return None
 
     @retry_optimistic_locking(retries=2)
+    @transaction.atomic
     def update_photo_card_sale(self, command: UpdatePhotoCardCommand):
         """
         포토 카드 구매 정보 업데이트 version을 이용한 동시성 제어

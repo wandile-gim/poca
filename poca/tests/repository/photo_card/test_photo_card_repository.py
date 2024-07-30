@@ -1,9 +1,10 @@
 import datetime
 import threading
 
-from django.db import OperationalError
-from django.test import TestCase
+from django.db import OperationalError, transaction
+from django.test import TestCase, TransactionTestCase
 from django.utils.timezone import now
+from sqlalchemy.dialects.postgresql import psycopg2
 
 from poca.application.adapter.spi.persistence.entity.photo_card import PhotoCardSale, PhotoCard
 from poca.application.adapter.spi.persistence.entity.user import User
@@ -11,6 +12,7 @@ from poca.application.adapter.spi.persistence.repository.photo_card_trade_reposi
 from poca.application.domain.model.photo_card import PhotoCardState
 from poca.application.port.api.command.photo_card_trade_command import UpdatePhotoCardCommand
 from poca.application.util import transactional
+from poca.application.util.transactional import MaxRetriesExceededException
 
 
 class TestPhotoCardRepository(TestCase):
@@ -178,7 +180,7 @@ class TestPhotoCardRepository(TestCase):
         self.assertEqual(result[len(result) - 1].price, 1000)
 
 
-class TestPhotoCardRepositorySavePort(TestCase):
+class TestPhotoCardRepositorySavePort(TransactionTestCase):
     repository = None
     card_id: int
     seller: User
@@ -221,17 +223,24 @@ class TestPhotoCardRepositorySavePort(TestCase):
         photo_card_sale.sold_date = n
 
         # when
-        # self.repository.update_photo_card(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer1.id))
-        # self.repository.update_photo_card(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer2.id))
-
         thread1 = threading.Thread(target=self.repository.update_photo_card_sale,
                                    args=(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer1.id,
                                                                 version=photo_card_sale.version),))
         thread2 = threading.Thread(target=self.repository.update_photo_card_sale,
                                    args=(UpdatePhotoCardCommand(photo_card_sale.id, self.buyer2.id,
                                                                 version=photo_card_sale.version),))
+        print(PhotoCardSale.objects.get(id=photo_card_sale.id).version)
+        try:
+            thread1.start()
+            thread2.start()
+            thread1.join()
+            thread2.join()
+        except MaxRetriesExceededException as e:
+            print(e)
+
 
         # then
         updated_photo_card_sale = PhotoCardSale.objects.get(id=photo_card_sale.id)
-        self.assertEqual(updated_photo_card_sale.buyer_id, None)
+        print(updated_photo_card_sale.version)
+        self.assertIn(updated_photo_card_sale.buyer_id, [self.buyer1.id, self.buyer2.id])
 

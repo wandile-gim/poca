@@ -7,7 +7,7 @@ class RegisterPhotoCardTradeDeSerializer(serializers.Serializer[RegisterPhotoCar
     card_id = serializers.IntegerField()
     seller_id = serializers.IntegerField(required=False)
     price = serializers.DecimalField(max_digits=10, decimal_places=0)
-    fee = serializers.DecimalField(max_digits=10, decimal_places=0)
+    fee = serializers.DecimalField(max_digits=10, decimal_places=0, required=False, default=0)
 
     def create(self) -> RegisterPhotoCardOnSaleCommand:
         validated_data = self.validated_data

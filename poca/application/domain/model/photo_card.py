@@ -16,6 +16,9 @@ class PhotoCardState(enum.Enum):
 
 
 class FeePolicy:
+    """
+    수수료 정책 설정. 수수료 정책은 서비스 클래스로 분리하여 관리할 수 있게 추후에 도메인 정책 클래스로 확장 고려
+    """
 
     def __init__(self, discount_percentage: Decimal):
         self.discount_percentage = discount_percentage
@@ -66,6 +69,11 @@ class PhotoCardSale:
         return self
 
     def apply_fee_policy(self, fee_policy: FeePolicy):
+        """
+        수수료 정책을 반영합니다.
+        :param fee_policy: FeePolicy
+        :return: self
+        """
         self.fee = fee_policy.apply(self.price)
         return self
 

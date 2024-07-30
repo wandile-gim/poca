@@ -37,6 +37,8 @@ class PhotoCardTradeService(
     def register_photo_card_on_sale(self, command: RegisterPhotoCardOnSaleCommand):
 
         # 판매 등록 성공시 도메인 반환, 실패시 None
+
+        # 수수료에 대한 입력이 없을 경우 수수료 정책에 따른다.
         fee = command.fee if command.fee > 0 else FeePolicy(decimal.Decimal(5))
         trade_record = PhotoCardSale(
             state=PhotoCardState.ON_SALE.value,
@@ -54,6 +56,7 @@ class PhotoCardTradeService(
 
     def on_sale_photo_card(self, method: OnSaleQueryStrategy):
         match method:
+            # 검색 대상인 판매중인 포토카드가 여러개라면 최소 가격, 리뉴얼이 오래된 순으로 조회하는 전략
             case OnSaleQueryStrategy.MIN_PRICE_RENEWAL_LATE_FIRST:
                 return self._on_sale_photo_card_by_min_price_renewal_rate_first()
 
